@@ -15,16 +15,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static final int rowItemCount = 20;
-  int totalSqaure = rowItemCount * 30;
-  int score = 0;
-  Timer timer;
   int food;
+  Timer timer;
+  int score = 0;
   bool gameOver = false;
-  List<int> snake = [0];
   int moveDuration = 500;
+  static final random = Random();
+  static final rowItemCount = 20;
   Direction direction = Direction.right;
   Direction prevDirection = Direction.right;
+  static final totalSqaure = rowItemCount * 30;
+  List<int> snake = [random.nextInt(totalSqaure)];
 
   final style = TextStyle(
     fontSize: 24,
@@ -32,13 +33,7 @@ class _HomePageState extends State<HomePage> {
     fontWeight: FontWeight.bold,
   );
 
-  bool _shouldSwitchHeadAndTail() {
-    return (direction == Direction.left && prevDirection == Direction.right) ||
-        (direction == Direction.right && prevDirection == Direction.left) ||
-        (direction == Direction.up && prevDirection == Direction.down) ||
-        (direction == Direction.down && prevDirection == Direction.up);
-  }
-
+  // ignore: missing_return
   int _moveHead() {
     switch (direction) {
       case Direction.right:
@@ -68,20 +63,9 @@ class _HomePageState extends State<HomePage> {
 
     timer = Timer.periodic(Duration(milliseconds: moveDuration), (_) {
       setState(() {
-        print(direction);
-        print(prevDirection);
-        if (_shouldSwitchHeadAndTail()) {
-          print('reversed !!');
-          snake = snake.reversed.toList();
-          return;
-          // snake[snake.length - 1] = snake.first;
-          // for (int i = 0; i < snake.length - 1; i++) {
-          //   snake[i] = snake[i + 1];
-          // }
-        }
-
         final newHead = _moveHead();
         if (newHead == food) {
+          score++;
           snake.add(newHead);
           return _showNewFood();
         }
@@ -106,11 +90,12 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       score = 0;
       timer = null;
+      snake.clear();
       gameOver = false;
-      snake = [0];
       moveDuration = 500;
       direction = Direction.right;
       prevDirection = Direction.right;
+      snake.add(random.nextInt(totalSqaure));
     });
     _toggleGameStatus();
   }
@@ -118,7 +103,6 @@ class _HomePageState extends State<HomePage> {
   void _showNewFood() {
     food = null;
 
-    final random = Random();
     final freeSquare = [];
     for (int i = 0; i < totalSqaure; i++) {
       if (!snake.contains(i)) freeSquare.add(i);
@@ -144,6 +128,10 @@ class _HomePageState extends State<HomePage> {
         direction = Direction.left;
       });
     }
+    if ((direction == Direction.left && prevDirection == Direction.right) ||
+        (direction == Direction.right && prevDirection == Direction.left)) {
+      snake = snake.reversed.toList();
+    }
   }
 
   void verticalDirectionHandler(DragUpdateDetails details) {
@@ -158,6 +146,10 @@ class _HomePageState extends State<HomePage> {
         prevDirection = direction;
         direction = Direction.down;
       });
+    }
+    if ((direction == Direction.up && prevDirection == Direction.down) ||
+        (direction == Direction.down && prevDirection == Direction.up)) {
+      snake = snake.reversed.toList();
     }
   }
 

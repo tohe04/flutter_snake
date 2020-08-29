@@ -1,6 +1,6 @@
-# snake
+# Snake
 
-A new Flutter project.
+Snake game made with flutter.
 
 ## Getting Started
 
